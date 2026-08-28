@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axio Peer Review</title>
+<style>
+:root{
+  --ink:#3F3F3F;
+  --ink-soft:#595959;
+  --lime:#C6D92E;
+  --lime-dark:#A9BC1F;
+  --lime-pale:#EEF3C7;
+  --paper:#FFFFFF;
+  --paper-dim:#F2F1EC;
+  --line:rgba(63,63,63,0.16);
+  --shadow:0 10px 30px rgba(63,63,63,0.14);
+  --radius:14px;
+  --rust:#9C4A34;
+  --sage:#4C7A3F;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper-dim);
+  color:var(--ink);
+  font-family:Calibri,"Segoe UI",Helvetica,Arial,sans-serif;
+  min-height:100vh;
+}
+
+.app{
+  max-width:760px;
+  margin:0 auto;
+  padding:28px 20px 60px;
+}
+
+/* ---------- HEADER ---------- */
+.topbar{
+  background:var(--ink);
+  border-radius:var(--radius);
+  padding:26px 26px 20px;
+  color:var(--paper);
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+  border-top:4px solid var(--lime);
+}
+.eyebrow{
+  font-family:Consolas,"Courier New",monospace;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--lime);
+  margin:0 0 6px;
+  font-weight:700;
+}
+.topbar h1{
+  font-weight:700;
+  font-size:30px;
+  margin:0 0 6px;
+  letter-spacing:-.01em;
+}
+.topbar p.sub{
+  margin:0 0 20px;
+  font-size:14px;
+  color:rgba(255,255,255,0.72);
+  max-width:480px;
+  line-height:1.5;
+}
+.tabs{
+  display:flex;
+  gap:6px;
+  background:rgba(255,255,255,0.08);
+  border-radius:999px;
+  padding:4px;
+  width:fit-content;
+}
+.tab-btn{
+  border:none;
+  background:transparent;
+  color:rgba(255,255,255,0.65);
+  font-family:inherit;
+  font-weight:700;
+  font-size:13px;
+  padding:9px 18px;
+  border-radius:999px;
+  cursor:pointer;
+  transition:all .18s ease;
+}
+.tab-btn.active{
+  background:var(--lime);
+  color:var(--ink);
+}
+
+/* ---------- CARD ---------- */
+.card{
+  background:var(--paper);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:28px;
+  margin-top:20px;
+}
+.field{
+  margin-bottom:22px;
+}
+.field label.field-label{
+  display:block;
+  font-weight:700;
+  font-size:13px;
+  color:var(--ink);
+  margin-bottom:8px;
+}
+select.select-input, input.text-input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--paper-dim);
+  font-family:inherit;
+  font-size:14px;
+  color:var(--ink);
+  appearance:none;
+}
+select.select-input:focus, input.text-input:focus, textarea.text-input:focus{
+  outline:2px solid var(--lime-dark);
+  outline-offset:1px;
+}
+textarea.text-input{
+  width:100%;
+  min-height:88px;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:var(--paper-dim);
+  font-family:inherit;
+  font-size:14px;
+  color:var(--ink);
+  resize:vertical;
+}
+.add-teammate-row{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+}
+.add-teammate-row input{
+  flex:1;
+}
+.link-btn{
+  background:none;
+  border:none;
+  color:var(--ink-soft);
+  font-weight:700;
+  font-size:12.5px;
+  cursor:pointer;
+  padding:4px 0;
+  text-decoration:underline;
+}
+.small-btn{
+  background:var(--ink);
+  color:var(--paper);
+  border:none;
+  border-radius:8px;
+  padding:0 16px;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+}
+
+/* ---------- VALUE BLOCK ---------- */
+.value-block{
+  border-top:1px solid var(--line);
+  padding:20px 0;
+}
+.value-block:first-of-type{
+  border-top:none;
+}
+.value-num{
+  font-family:Consolas,"Courier New",monospace;
+  font-size:11px;
+  color:var(--lime-dark);
+  letter-spacing:.1em;
+  font-weight:700;
+}
+.value-title{
+  font-size:18px;
+  font-weight:700;
+  margin:2px 0 8px;
+  color:var(--ink);
+}
+.value-quote{
+  font-style:italic;
+  font-size:13.5px;
+  color:var(--ink-soft);
+  line-height:1.55;
+  margin:0 0 14px;
+  padding-left:12px;
+  border-left:3px solid var(--lime);
+}
+
+/* rating selector */
+.dial{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.dial-ticks{
+  display:flex;
+  gap:6px;
+  flex:1;
+}
+.tick-btn{
+  flex:1;
+  height:38px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:var(--paper-dim);
+  cursor:pointer;
+  font-family:Consolas,"Courier New",monospace;
+  font-weight:700;
+  font-size:13px;
+  color:var(--ink-soft);
+  transition:all .15s ease;
+}
+.tick-btn:hover{ border-color:var(--lime-dark); }
+.tick-btn.filled{
+  background:var(--lime);
+  color:var(--ink);
+  border-color:var(--lime-dark);
+}
+.dial-readout{
+  font-family:Consolas,"Courier New",monospace;
+  font-size:20px;
+  font-weight:700;
+  color:var(--ink);
+  width:24px;
+  text-align:center;
+}
+
+/* ---------- SUBMIT BUTTON / STATUS ---------- */
+.submit-row{
+  margin-top:8px;
+}
+.submit-btn{
+  width:100%;
+  background:var(--lime);
+  color:var(--ink);
+  border:none;
+  border-radius:10px;
+  padding:14px;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  font-family:inherit;
+  transition:filter .15s ease;
+}
+.submit-btn:hover{ filter:brightness(1.05); }
+.submit-btn:disabled{ opacity:.5; cursor:not-allowed; }
+.status-msg{
+  margin-top:12px;
+  font-size:13px;
+  padding:12px 14px;
+  border-radius:8px;
+  display:none;
+}
+.status-msg.show{ display:block; }
+.status-msg.ok{ background:var(--lime-pale); color:var(--sage); }
+.status-msg.err{ background:rgba(156,74,52,0.1); color:var(--rust); }
+.privacy-note{
+  font-size:11.5px;
+  color:var(--ink-soft);
+  margin-top:14px;
+  line-height:1.5;
+}
+
+/* ---------- ADMIN LOCK ---------- */
+.lock-card{
+  text-align:center;
+  padding:40px 28px;
+}
+.lock-icon{
+  width:46px; height:46px;
+  border:2px solid var(--lime-dark);
+  border-radius:10px;
+  margin:0 auto 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--lime-dark);
+  font-size:20px;
+  font-weight:700;
+}
+.lock-card h3{
+  margin:0 0 6px;
+  font-size:17px;
+}
+.lock-card p{
+  margin:0 0 20px;
+  font-size:13px;
+  color:var(--ink-soft);
+}
+.lock-form{
+  display:flex;
+  gap:8px;
+  max-width:320px;
+  margin:0 auto;
+}
+.lock-form input{
+  flex:1;
+}
+#lock-error{
+  color:var(--rust);
+  font-size:12.5px;
+  margin-top:12px;
+  min-height:16px;
+}
+
+/* ---------- SCORECARD VIEW ---------- */
+.composite{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  background:var(--ink);
+  border-radius:12px;
+  padding:20px 22px;
+  color:var(--paper);
+  margin-bottom:22px;
+}
+.composite-num{
+  font-family:Consolas,"Courier New",monospace;
+  font-size:40px;
+  font-weight:700;
+  color:var(--lime);
+  line-height:1;
+}
+.composite-meta p{ margin:0; font-size:12.5px; color:rgba(255,255,255,0.7); }
+
+.gauge-row{ margin-bottom:18px; }
+.gauge-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:6px;
+}
+.gauge-label{ font-weight:700; font-size:13.5px; color:var(--ink); }
+.gauge-score{
+  font-family:Consolas,"Courier New",monospace;
+  font-weight:700;
+  font-size:14px;
+  color:var(--lime-dark);
+}
+.gauge-track{
+  height:10px;
+  border-radius:999px;
+  background:var(--paper-dim);
+  overflow:hidden;
+  position:relative;
+}
+.gauge-track::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:repeating-linear-gradient(90deg, transparent 0, transparent calc(20% - 1px), var(--paper) calc(20% - 1px), var(--paper) 20%);
+  z-index:2;
+}
+.gauge-fill{
+  height:100%;
+  background:var(--lime);
+  border-radius:999px;
+  position:relative;
+  z-index:1;
+  transition:width .4s ease;
+}
+
+.feedback-cols{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-top:24px;
+}
+.feedback-col h4{ font-size:14px; margin:0 0 10px; color:var(--ink); }
+.feedback-col ul{
+  list-style:none; margin:0; padding:0;
+  display:flex; flex-direction:column; gap:8px;
+}
+.feedback-col li{
+  background:var(--paper-dim);
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:13px;
+  line-height:1.5;
+  color:var(--ink-soft);
+}
+.empty-state{
+  text-align:center;
+  padding:40px 10px;
+  color:var(--ink-soft);
+  font-size:13.5px;
+}
+.empty-state .icon-ring{
+  width:48px; height:48px;
+  border:2px solid var(--lime-dark);
+  border-radius:50%;
+  margin:0 auto 14px;
+  opacity:.5;
+}
+.logout-row{
+  text-align:right;
+  margin-bottom:-6px;
+}
+
+@media (max-width:520px){
+  .feedback-cols{ grid-template-columns:1fr; }
+  .tick-btn{ height:42px; }
+  .composite-num{ font-size:32px; }
+  .lock-form{ flex-direction:column; }
+}
+[hidden]{ display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <p class="eyebrow">Axio &middot; Team Values</p>
+    <h1>Peer Review</h1>
+    <p class="sub">Rate a teammate against Axio's values, 1&ndash;5. Submissions don't collect your name or email &mdash; only what you type here.</p>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="submit">Submit a review</button>
+      <button class="tab-btn" data-tab="scorecard">Scorecards</button>
+    </div>
+  </div>
+
+  <!-- ===================== SUBMIT VIEW ===================== -->
+  <section id="submit-view">
+    <div class="card">
+      <div class="field">
+        <label class="field-label">Who are you reviewing?</label>
+        <select class="select-input" id="employee-select">
+          <option value="">Select a teammate&hellip;</option>
+        </select>
+        <button class="link-btn" id="show-add-teammate" type="button">+ Add someone not on this list</button>
+        <div class="add-teammate-row" id="add-teammate-row" hidden>
+          <input class="text-input" id="new-employee-input" type="text" placeholder="First and last name">
+          <button class="small-btn" id="confirm-add-employee" type="button">Add</button>
+        </div>
+      </div>
+
+      <div id="value-blocks"></div>
+
+      <div class="field">
+        <label class="field-label">Positive feedback for this employee</label>
+        <textarea class="text-input" id="positive-input" placeholder="What's this person doing well?"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Areas for improvement</label>
+        <textarea class="text-input" id="improvement-input" placeholder="Where could they grow?"></textarea>
+      </div>
+
+      <div class="submit-row">
+        <button class="submit-btn" id="submit-btn">Submit review</button>
+        <div class="status-msg" id="submit-status"></div>
+        <p class="privacy-note">Your response is stored without your name. Once submitted, it can't be edited or withdrawn &mdash; please review before sending.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SCORECARD VIEW (admin only) ===================== -->
+  <section id="scorecard-view" hidden>
+    <div class="card lock-card" id="scorecard-lock">
+      <div class="lock-icon">&#9679;</div>
+      <h3>Admin access</h3>
+      <p>Scorecards are restricted to managers/admins. Enter the passcode to continue.</p>
+      <div class="lock-form">
+        <input class="text-input" type="password" id="admin-passcode-input" placeholder="Passcode">
+        <button class="small-btn" id="unlock-btn" type="button">Unlock</button>
+      </div>
+      <div id="lock-error"></div>
+    </div>
+
+    <div id="scorecard-content" hidden>
+      <div class="card">
+        <div class="logout-row">
+          <button class="link-btn" id="lock-again-btn" type="button">Lock scorecards</button>
+        </div>
+        <div class="field" style="margin-bottom:8px;">
+          <label class="field-label">View scorecard for</label>
+          <select class="select-input" id="scorecard-employee-select">
+            <option value="">Select a teammate&hellip;</option>
+          </select>
+        </div>
+        <div id="scorecard-body" style="margin-top:20px;"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* Soft admin gate — this runs client-side, so anyone who views this file's
+   source can see the passcode below. It's meant to keep casual reviewers
+   from browsing scorecards, not to secure sensitive HR data. Change the
+   passcode any time by editing ADMIN_PASSCODE. */
+const ADMIN_PASSCODE = "AxioLead2026";
+let isAdminUnlocked = false;
+
+const VALUES = [
+  { id:"honest", title:"Be Honest and Transparent", quote:"Let transparency and truth be the cornerstones of all our endeavors, for in honesty lies the strength of character." },
+  { id:"generosity", title:"Show Generosity", quote:"In the act of giving generously, we find the true wealth of our spirit, enriching not only ourselves but the world around us." },
+  { id:"jobDone", title:"Get the Job Done", quote:"Let us approach our duties with a steadfast resolve, completing each task with the excellence it deserves." },
+  { id:"limits", title:"Know Your Limits", quote:"True wisdom lies in recognizing the boundaries of your capabilities, for self-awareness guards against folly and ensures sustainable growth." },
+  { id:"extraordinary", title:"Dedicate Yourself to Achieving the Extraordinary", quote:"Strive always beyond the realms of the ordinary, for in the pursuit of the extraordinary, we carve our legacy." }
+];
+
+const EMPLOYEE_LIST_KEY = "employee-directory";
+const DEFAULT_EMPLOYEES = [
+  "Adam Lockamy","Andrew Molnar","Avery McCall","Benjamin Griswold","Brendan Elliott",
+  "Brett Frady","Chris Langford","Emilie Catesson","Ethan Sellers","Fitz King",
+  "Hannah Rokala","Hayden Reynolds","Jackson Morgan","James Matthia","Jeremie Andrews",
+  "Jordan Nott","Kyle Miller","Luke Ledbetter","Manny Bravo","Mike McKnight",
+  "Nate Niesen","Nathan Norris","Noah Rooney","Terry Sanford","Theron Burton","Zach Sanford"
+];
+let employees = [];
+let ratings = {};
+
+function slugify(name){
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+}
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.getElementById("submit-view").hidden = tab !== "submit";
+    document.getElementById("scorecard-view").hidden = tab !== "scorecard";
+    if(tab === "scorecard"){
+      document.getElementById("scorecard-lock").hidden = isAdminUnlocked;
+      document.getElementById("scorecard-content").hidden = !isAdminUnlocked;
+    }
+  });
+});
+
+/* ---------- Admin unlock ---------- */
+function attemptUnlock(){
+  const input = document.getElementById("admin-passcode-input");
+  const err = document.getElementById("lock-error");
+  if(input.value === ADMIN_PASSCODE){
+    isAdminUnlocked = true;
+    err.textContent = "";
+    input.value = "";
+    document.getElementById("scorecard-lock").hidden = true;
+    document.getElementById("scorecard-content").hidden = false;
+  }else{
+    err.textContent = "That passcode isn't right. Try again.";
+  }
+}
+document.getElementById("unlock-btn").addEventListener("click", attemptUnlock);
+document.getElementById("admin-passcode-input").addEventListener("keydown", (e)=>{
+  if(e.key === "Enter") attemptUnlock();
+});
+document.getElementById("lock-again-btn").addEventListener("click", ()=>{
+  isAdminUnlocked = false;
+  document.getElementById("scorecard-lock").hidden = false;
+  document.getElementById("scorecard-content").hidden = true;
+});
+
+/* ---------- Render value rating blocks ---------- */
+function renderValueBlocks(){
+  const container = document.getElementById("value-blocks");
+  container.innerHTML = "";
+  VALUES.forEach((v, idx)=>{
+    const block = document.createElement("div");
+    block.className = "value-block";
+    block.innerHTML = `
+      <div class="value-num">VALUE ${String(idx+1).padStart(2,"0")}</div>
+      <div class="value-title">${v.title}</div>
+      <p class="value-quote">&ldquo;${v.quote}&rdquo;</p>
+      <div class="dial">
+        <div class="dial-ticks" data-value-id="${v.id}">
+          ${[1,2,3,4,5].map(n=>`<button type="button" class="tick-btn" data-n="${n}">${n}</button>`).join("")}
+        </div>
+        <div class="dial-readout" id="readout-${v.id}">&mdash;</div>
+      </div>
+    `;
+    container.appendChild(block);
+  });
+
+  container.querySelectorAll(".tick-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const wrap = btn.closest(".dial-ticks");
+      const valueId = wrap.dataset.valueId;
+      const n = parseInt(btn.dataset.n,10);
+      ratings[valueId] = n;
+      wrap.querySelectorAll(".tick-btn").forEach(b=>{
+        b.classList.toggle("filled", parseInt(b.dataset.n,10) <= n);
+      });
+      document.getElementById(`readout-${valueId}`).textContent = n;
+    });
+  });
+}
+
+/* ---------- Employee directory ---------- */
+async function loadEmployees(){
+  let stored = [];
+  try{
+    const res = await window.storage.get(EMPLOYEE_LIST_KEY, true);
+    stored = res ? JSON.parse(res.value) : [];
+  }catch(e){
+    stored = [];
+  }
+
+  // merge the default roster with anything already stored, case-insensitively deduped
+  const merged = [...stored];
+  DEFAULT_EMPLOYEES.forEach(name=>{
+    if(!merged.some(m=>m.toLowerCase() === name.toLowerCase())) merged.push(name);
+  });
+  employees = merged;
+  renderEmployeeSelects();
+
+  if(merged.length !== stored.length){
+    try{
+      await window.storage.set(EMPLOYEE_LIST_KEY, JSON.stringify(merged), true);
+    }catch(e){
+      console.error("Failed to persist merged employee directory", e);
+    }
+  }
+}
+
+function renderEmployeeSelects(){
+  const sorted = [...employees].sort((a,b)=>a.localeCompare(b));
+  [document.getElementById("employee-select"), document.getElementById("scorecard-employee-select")].forEach(sel=>{
+    const current = sel.value;
+    sel.innerHTML = `<option value="">Select a teammate&hellip;</option>` +
+      sorted.map(name=>`<option value="${name}">${name}</option>`).join("");
+    if(sorted.includes(current)) sel.value = current;
+  });
+}
+
+async function addEmployee(name){
+  name = name.trim();
+  if(!name) return;
+  const exists = employees.some(e=>e.toLowerCase() === name.toLowerCase());
+  if(!exists){
+    employees.push(name);
+    try{
+      await window.storage.set(EMPLOYEE_LIST_KEY, JSON.stringify(employees), true);
+    }catch(e){
+      console.error("Failed to save employee directory", e);
+    }
+  }
+  renderEmployeeSelects();
+  document.getElementById("employee-select").value = name;
+}
+
+document.getElementById("show-add-teammate").addEventListener("click", ()=>{
+  const row = document.getElementById("add-teammate-row");
+  row.hidden = !row.hidden;
+});
+document.getElementById("confirm-add-employee").addEventListener("click", async ()=>{
+  const input = document.getElementById("new-employee-input");
+  await addEmployee(input.value);
+  input.value = "";
+  document.getElementById("add-teammate-row").hidden = true;
+});
+
+/* ---------- Submit review ---------- */
+function showStatus(msg, ok){
+  const el = document.getElementById("submit-status");
+  el.textContent = msg;
+  el.className = "status-msg show " + (ok ? "ok" : "err");
+}
+
+document.getElementById("submit-btn").addEventListener("click", async ()=>{
+  const employeeSelect = document.getElementById("employee-select");
+  const employee = employeeSelect.value;
+  const positive = document.getElementById("positive-input").value.trim();
+  const improvement = document.getElementById("improvement-input").value.trim();
+
+  if(!employee){
+    showStatus("Select who you're reviewing before submitting.", false);
+    return;
+  }
+  const missing = VALUES.filter(v=>!ratings[v.id]);
+  if(missing.length){
+    showStatus("Please rate all five values before submitting.", false);
+    return;
+  }
+
+  const btn = document.getElementById("submit-btn");
+  btn.disabled = true;
+  btn.textContent = "Submitting\u2026";
+
+  const review = {
+    employee,
+    scores: { ...ratings },
+    positive,
+    improvement,
+    ts: Date.now()
+  };
+  const slug = slugify(employee);
+  const key = `review:${slug}:${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+
+  try{
+    const result = await window.storage.set(key, JSON.stringify(review), true);
+    if(!result) throw new Error("Storage returned no result");
+    showStatus("Thanks \u2014 your anonymous review was submitted.", true);
+    // reset form
+    ratings = {};
+    document.querySelectorAll(".tick-btn").forEach(b=>b.classList.remove("filled"));
+    VALUES.forEach(v=>document.getElementById(`readout-${v.id}`).textContent = "\u2014");
+    document.getElementById("positive-input").value = "";
+    document.getElementById("improvement-input").value = "";
+    employeeSelect.value = "";
+  }catch(e){
+    console.error(e);
+    showStatus("Something went wrong submitting this review. Please try again.", false);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Submit review";
+  }
+});
+
+/* ---------- Scorecard ---------- */
+document.getElementById("scorecard-employee-select").addEventListener("change", async (e)=>{
+  const name = e.target.value;
+  const body = document.getElementById("scorecard-body");
+  if(!name){
+    body.innerHTML = "";
+    return;
+  }
+  body.innerHTML = `<div class="empty-state"><div class="icon-ring"></div>Loading reviews&hellip;</div>`;
+
+  const slug = slugify(name);
+  let keys = [];
+  try{
+    const listRes = await window.storage.list(`review:${slug}:`, true);
+    keys = listRes && listRes.keys ? listRes.keys : [];
+  }catch(err){
+    keys = [];
+  }
+
+  if(!keys.length){
+    body.innerHTML = `<div class="empty-state"><div class="icon-ring"></div>No reviews for ${name} yet.</div>`;
+    return;
+  }
+
+  const reviews = [];
+  for(const k of keys){
+    try{
+      const r = await window.storage.get(k, true);
+      if(r && r.value) reviews.push(JSON.parse(r.value));
+    }catch(err){ /* skip unreadable entry */ }
+  }
+
+  if(!reviews.length){
+    body.innerHTML = `<div class="empty-state"><div class="icon-ring"></div>No reviews for ${name} yet.</div>`;
+    return;
+  }
+
+  const sums = {}; VALUES.forEach(v=>sums[v.id]=0);
+  reviews.forEach(r=>{
+    VALUES.forEach(v=>{
+      const s = r.scores && r.scores[v.id];
+      if(typeof s === "number") sums[v.id] += s;
+    });
+  });
+  const averages = {};
+  VALUES.forEach(v=> averages[v.id] = sums[v.id] / reviews.length);
+  const compositeAvg = VALUES.reduce((acc,v)=>acc+averages[v.id],0) / VALUES.length;
+  const toPct = avg => Math.round(((avg - 1) / 4) * 100);
+  const compositePct = toPct(compositeAvg);
+
+  const positives = reviews.map(r=>r.positive).filter(Boolean);
+  const improvements = reviews.map(r=>r.improvement).filter(Boolean);
+
+  body.innerHTML = `
+    ${VALUES.map(v=>`
+      <div class="gauge-row">
+        <div class="gauge-top">
+          <span class="gauge-label">${v.title}</span>
+          <span class="gauge-score">${toPct(averages[v.id])}%</span>
+        </div>
+        <div class="gauge-track">
+          <div class="gauge-fill" style="width:${toPct(averages[v.id])}%"></div>
+        </div>
+      </div>
+    `).join("")}
+    <div class="composite" style="margin-top:22px;">
+      <div class="composite-num">${compositePct}%</div>
+      <div class="composite-meta">
+        <p class="eyebrow" style="margin-bottom:4px;">Overall score &middot; 0&ndash;100%</p>
+        <p>${reviews.length} review${reviews.length===1?"":"s"} submitted</p>
+      </div>
+    </div>
+    <div class="feedback-cols">
+      <div class="feedback-col">
+        <h4>Positive feedback</h4>
+        <ul>${positives.length ? positives.map(p=>`<li>${escapeHtml(p)}</li>`).join("") : `<li>No comments left.</li>`}</ul>
+      </div>
+      <div class="feedback-col">
+        <h4>Areas to grow</h4>
+        <ul>${improvements.length ? improvements.map(p=>`<li>${escapeHtml(p)}</li>`).join("") : `<li>No comments left.</li>`}</ul>
+      </div>
+    </div>
+  `;
+});
+
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ---------- Init ---------- */
+renderValueBlocks();
+loadEmployees();
+</script>
+</body>
+</html>
